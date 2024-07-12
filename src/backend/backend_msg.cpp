@@ -21,6 +21,8 @@ Backend_MSG::~Backend_MSG() {
 void Backend_MSG::perform(std::vector<float> &in_msg, std::vector<float> &out_msg, std::string method)
 {
   c10::InferenceMode guard;
+  
+  out_msg.clear();
 
   auto params = get_method_params(method);
 
@@ -76,10 +78,6 @@ void Backend_MSG::perform(std::vector<float> &in_msg, std::vector<float> &out_ms
 
   auto out_ptr = tensor_out.contiguous().data_ptr<float>();
   memcpy(out_msg.data(), out_ptr, out_msg.size() * sizeof(float));
-
-// for (int i(0); i < out_buffer.size(); i++) {
-//   memcpy(out_buffer[i], out_ptr + i * n_vec, n_vec * sizeof(float));
-// }
 }
 
 int Backend_MSG::load(std::string path)

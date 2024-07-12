@@ -347,18 +347,31 @@ void nn_msg_tilde::operator()(audio_bundle input, audio_bundle output) {
 
 void nn_msg_tilde::perform(audio_bundle input, audio_bundle output) {
   auto vec_size = output.frame_count();
+  
+  // Call model if buffer is empty.
+  if(m_out_buffer[0].empty()) {
+    m_model->perform(input_msg, output_msg, m_method);
 
-  // Call model
-  m_model->perform(input_msg, output_msg, m_method);
-
-  // Add to circular buffer (For now, only a single output channel)
-  m_out_buffer[0].put(output_msg.data(), output_msg.size());
+    // Add to circular buffer (For now, only a single output channel)
+    m_out_buffer[0].put(output_msg.data(), output_msg.size());
+    
+    // for(int i = 0; i < output_msg.size(); i++) {
+    //   m_model->debug_file << output_msg[i] << " ";
+    // }
+    // m_model->debug_file << "|";
+  }
 
   // Copy Circuar Buffer to Output
   for (int c(0); c < output.channel_count(); c++) {
     auto out = output.samples(c);
     m_out_buffer[c].get(out, vec_size);
+
+    // for(int i = 0; i < vec_size; i++) {
+    //   m_model->debug_file << out[i] << " ";
+    // }
+    // m_model->debug_file << "|";
   }
+  // m_model->debug_file << std::endl;
 }
 
 MIN_EXTERNAL(nn_msg_tilde);
